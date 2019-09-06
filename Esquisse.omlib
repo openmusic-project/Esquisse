@@ -12,19 +12,30 @@
 ;
 ;============================================================================
 
-(in-package :om)
- 
-(compile&load (om::om-relative-path '("sources") "esquisse"))
 
-(om::fill-library 
-	'(("Intervals" nil nil (BEST-TRANSP) nil)
-      ("Spectral Harmony"
-          (("harm-series" nil nil (HARM-SERIES NTH-HARM) nil)
-           ("modulations" nil nil (FREQ-MOD RING-MOD) nil)
-           ("processing" nil nil (FSHIFT FDISTOR ) nil)
-           ("analysis" nil nil (VIRT-FUND M-VIR-FUN HARM-DIST BEST-FREQ) nil))
-      	    Nil Nil Nil)
-       ("Utilities" nil nil nil nil)
-       ("midi" nil nil nil nil)))
+(:om-lib 
+ (:version 1.1)
+ (:doc "Esquisse library")
+ (:author "IRCAM / RepMus team")
+ (:source-files "sources/esquisse")
+ (:symbols
+  (:packages 
+   (:package 
+    (:name "Intervals")
+    (:functions BEST-TRANSP))
+   (:package 
+    (:name "Harmonic Series")
+    (:functions HARM-SERIES NTH-HARM))
+   (:package 
+    (:name "Modulations")
+    (:functions FREQ-MOD RING-MOD))
+   (:package 
+    (:name "Processing")
+    (:functions FSHIFT FDISTOR))
+   (:package 
+    (:name "Analysis")
+    (:functions VIRT-FUND M-VIR-FUN HARM-DIST BEST-FREQ))
+   ))
+ )
 
-(om::set-lib-release 1.1)
+
