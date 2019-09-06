@@ -1,9 +1,22 @@
+;============================================================================
+; Esquisse
+; library for OM
+;============================================================================
+;
+;   This program is free software. For information on usage 
+;   and redistribution, see the "LICENSE" file in this distribution.
+;
+;   This program is distributed in the hope that it will be useful,
+;   but WITHOUT ANY WARRANTY; without even the implied warranty of
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;
+;============================================================================
+
+
 (in-package :om)
 
  
 ; HARM-SERIES NTH-HARM FREQ-MOD RING-MOD M-VIR-FUN FSHIFT FDISTOR HARM-DIST VIRT-FUND BEST-FREQ BEST-TRANSP
-
-     
 
 (defmethod! harm-series ((fund t) (numer integer) 
                          (denom integer) (begin integer)
@@ -126,9 +139,9 @@ chord-seq object by selecting 'chordseq' in the menu <type>"
 
 
 (defmethod! m-vir-fun ((chord list) (approx integer)  (thresh number)  (unit symbol))
-   :initvals '('(6000 6400 6700) 50 1200 'midic)
+   :initvals '((6000 6400 6700) 50 1200 midic)
    :indoc '("Chord" "Approx" "MinFund" "Unit")
-   :menuins '((3 (("Midics" 'midic) ("Freqs" 'freq))))
+   :menuins '((3 (("Midics" midic) ("Freqs" freq))))
    :icon 242 
    :doc  
    "Computes a series of possible virtual fundamentals from <chord> (a list of pitches) and <approx> (in midicents).
@@ -142,7 +155,7 @@ If the menu <unit> is 'freq' then <chord> and <thresh> must be given in Hz, othe
    (setf chord (sort (copy-list chord) '<))
    (when (eq unit 'midic) (setf chord (mc->f chord) thresh (mc->f thresh)))
    (let ((classement (make-classement chord  (cents->coef approx) thresh)) )
-     (loop while  (iteration classement ) )
+     (loop while (iteration classement))
      (loop for regroupement in (rest (regroupements classement))
            collect
            (make-instance 'chord-seq :lmidic 
@@ -158,9 +171,9 @@ If the menu <unit> is 'freq' then <chord> and <thresh> must be given in Hz, othe
 
 
 (defmethod! ring-mod ((ch1 number) (ch2 number) (unit symbol) (type symbol))
-   :initvals '(6000 6200  'midic 'chord)
+   :initvals '(6000 6200  midic chord)
    :indoc '("Chord" "Chord" "Unit" "Mode")
-   :menuins '((2 (("Midics" 'midic) ("Freqs" 'freq))) (3 (("Chord" 'chord) ("ChordSeq" 'chordseq))) )
+   :menuins '((2 (("Midics" midic) ("Freqs" freq))) (3 (("Chord" chord) ("ChordSeq" chordseq))) )
    :icon 242 
    :doc  
    "Simulates the ring modulation of each note of <ch1> by all the notes of 
@@ -214,9 +227,9 @@ The output is always list of midics or list of list of midics.
 
 
 (defmethod! fshift ((pitch number) (dfreq number) (unit symbol) (type symbol)) 
-  :initvals '(6000 100  'midic 'chord)
+  :initvals '(6000 100  midic chord)
   :indoc '("pitch" "dfreq" "Unit" "Mode")
-  :menuins '((2 (("Midics" 'midic) ("Freqs" 'freq))) (3 (("Chord" 'chord) ("ChordSeq" 'chordseq))) )
+  :menuins '((2 (("Midics" midic) ("Freqs" freq))) (3 (("Chord" chord) ("ChordSeq" chordseq))) )
   :icon 242 
   :doc  
   "Shifts the frequency of each note of <chord> by a frequency <dfreq> 
@@ -283,9 +296,9 @@ included ('inclu') or excluded ('exclu') from the output list."
 
 (defmethod! fdistor ((chord list) (minout number) (maxout number) (unit symbol)
                      &optional minin  maxin)
-   :initvals '(6000 5700 7000  'midic nil nil)
+   :initvals '((6000 5700 7000) midic nil nil)
    :indoc '("pitches" "minout" "maxout" "Unit" "minin" "maxin")
-   :menuins '((3 (("Midics" 'midic) ("Freqs" 'freq)))  )
+   :menuins '((3 (("Midics" midic) ("Freqs" freq)))  )
    :icon 242 
    :doc  
    "Distorts the frequencies of <chord> so that the lowest note is changed to
@@ -333,9 +346,9 @@ calculations and output are all in hertz.
 
 
 (defmethod! harm-dist ((chord list) (fund number) (unit symbol))
-   :initvals '(6000 2400 'midic)
+   :initvals '((6000) 2400 midic)
    :indoc '("pitches""fundamental" "Unit" )
-   :menuins '((2 (("Midics" 'midic) ("Freqs" 'freq)))  )
+   :menuins '((2 (("Midics" midic) ("Freqs" freq)))  )
    :numouts 2
    :icon 242 
    :doc     
@@ -380,9 +393,9 @@ There are 2 outputs : the ratios and the corresponding partial numbers"
 
 (defmethod! virt-fund ((chord list) (cents integer) (unit symbol)) 
 
-   :initvals '('(6000) 50  'midic)
+   :initvals '((6000) 50 midic)
    :indoc '("pitches""approx" "unit" )
-   :menuins '((2 (("Midics" 'midic) ("Freqs" 'freq)))  )
+   :menuins '((2 (("Midics" midic) ("Freqs" freq)))  )
    :icon 242 
    :doc     
 
@@ -415,9 +428,9 @@ result returned in midicents, ('midic'), or in hertz ('freq'). The argument
 
 
 (defmethod! best-freq ((chord list) (unit symbol))
-  :initvals '('(6000)  'midic)
+  :initvals '((6000) midic)
   :indoc '("pitches" "unit" )
-  :menuins '((1 (("Midics" 'midic) ("Freqs" 'freq)))  )
+  :menuins '((1 (("Midics" midic) ("Freqs" freq))))
   :icon 242 
   :doc     
   
@@ -446,9 +459,9 @@ calculations and output are all in hertz."
 
 
 (defmethod! best-transp ((ch1 list) (ch2 list) (fct symbol))
-  :initvals '('(6000)  '(6000) 'sum)
+  :initvals '((6000) (6000) sum)
   :indoc '("chord" "chord" "fct")
-  :menuins '((2 (("Sum" 'sum) ("Max" 'max)))  )
+  :menuins '((2 (("Sum" sum) ("Max" max))))
   :icon 242 
   :doc     
  
@@ -551,7 +564,7 @@ a one-element list"
            (grid-below (val) (/ val (1+ grid-ratio)))
            (gcd-try (values gcd-min gcd-max)
              (when (<= gcd-min gcd-max)
-               (ifnot values
+               (if (not values)
                  (/ (+ gcd-min gcd-max) 2.0)
                  (let* ((val-below (grid-below (first values)))
                         (val-above (grid-above (first values)))
@@ -576,14 +589,15 @@ a one-element list"
 
 ; ==================== serie harm  ===========================
 
-(defun rankcalc (numer denom begin end )
+(defun rankcalc (numer denom begin end)
   (let ((cdeb (mod begin denom)) (pas (if (< end begin) -1 1)) res)
-    (for (n begin pas end) 
-      (if (not (>= (mod (- n cdeb) denom) numer)) (push n res)) )
+    (loop for n = begin then (+ n pas)
+          while (<= n end) do 
+          (if (not (>= (mod (- n cdeb) denom) numer)) (push n res)))
     (nreverse (remove 0 (if (and (not (null (find 1 res))) (not (null (find -1 res)))) 
-                        (remove -1 res) res)))))
+                            (remove -1 res) res)))))
 
-(defun hrmcalc1 ( listharm fond)
+(defun hrmcalc1 (listharm fond)
   (let (res)
     (dolist ( n listharm)
           (cond ( ( > n 0 ) (push (* fond  n ) res))
@@ -591,7 +605,7 @@ a one-element list"
                 ( t () ) ))
     (nreverse  res)))
 
-(defun hrmcalc (fond listharm )
+(defun hrmcalc (fond listharm)
   (less-deep-mapcar #'hrmcalc1 listharm fond))
 
 (defun sercalc (fund  numer denom begin end )
@@ -608,7 +622,7 @@ a one-element list"
 
 (defun best-freq1 (freqs)
   (let ((sum 0) (nb-freq (length freqs)))
-    (while freqs (incf sum (log (nextl freqs))))
+    (loop while freqs do (incf sum (log (pop freqs))))
     (exp (/ sum nb-freq))))
 
 
@@ -619,9 +633,9 @@ a one-element list"
 de chaque frequence de la liste <freqs1> par la liste <freqs2>"
   (let* (ll (freqs1 (list! freqs1)) (freqs2 (list! freqs2))
          (x (one-elem freqs1)))
-    (while freqs1
-      (let ((a (pop freqs1)))
-        (push (append (om+ a freqs2) (om- a freqs2)) ll) ))
+    (loop while freqs1 do
+          (let ((a (pop freqs1)))
+            (push (append (om+ a freqs2) (om- a freqs2)) ll) ))
     (if  x (flat (nreverse ll)) (nreverse ll))))
 
 ; ==================== freq shifting  ===========================
@@ -689,13 +703,13 @@ de chaque frequence de la liste <freqs1> par la liste <freqs2>"
              (setq order (add1 imod)) )
          (setq order (min order *maxorder*))
          (setq spec `((, c . 0 )))
-         (for (i 1 1 order)
-              (newl spec (cons (- c (* i m)) (- i)))
-              (setq  spec (nconc spec (list (cons (+ c (* i m)) i))))
-              (when (and (null p) (< (caar spec) 0))
-                    (setq p spec)))
+         (loop for i from 1 to order do
+               (push (cons (- c (* i m)) (- i)) spec)
+               (setq  spec (nconc spec (list (cons (+ c (* i m)) i))))
+               (when (and (null p) (< (caar spec) 0))
+                 (setq p spec)))
          (setq s spec)
-         (while s
+         (loop while s do
                 ;(when (and (null p) (>= (caar s) 0))
                 ;      (setq p q))
                 (cond 
@@ -709,7 +723,7 @@ de chaque frequence de la liste <freqs1> par la liste <freqs2>"
                       ( t
                         (rplacd (car s) (bessel MI (cdar s)))))
                 ;(setq q s)
-                (nextl s))
+                (pop s))
          (setq spec
                (if (not p)
                     spec
@@ -718,7 +732,7 @@ de chaque frequence de la liste <freqs1> par la liste <freqs2>"
          (mapc #'(lambda (comp)
                        (rplacd comp (abs (cdr comp))))
                spec)
-         (when (<= (caar spec) 0) (nextl spec))
+         (when (<= (caar spec) 0) (pop spec))
           (fmNormalize spec)
          spec
 ))
@@ -931,14 +945,12 @@ de chaque frequence de la liste <freqs1> par la liste <freqs2>"
     (if (> (length ( spectres (car (last ( regroupements self ))))) 1 )
       (let ((temp (regroupe-distance-non-nulle (car (last ( regroupements self )))) ))
         (if temp 
-          (true (setf (regroupements self) 
-                      (append ( regroupements self ) 
-                              (list temp)) ))
-          nil
-          )
+            (setf (regroupements self) 
+                  (append (regroupements self ) 
+                          (list temp)))
+          nil)
         )
-      nil
-      )
+      nil)
     (progn 
         (setf (regroupements self) 
               (append (regroupements self)
@@ -949,7 +961,7 @@ de chaque frequence de la liste <freqs1> par la liste <freqs2>"
   )
 
 ;;; -------------------------------------------------------------------------
-;;; Regroupement de spectres  distance nulle
+;;; Regroupement de spectres a distance nulle
 ;;; -------------------------------------------------------------------------
 
 (defmethod regroupe-spectres-distance-nulle ((self regroupement))
@@ -1093,14 +1105,14 @@ of <ch2> and returns this transposition as second value."
          (1-length (1- (length ints)))
          (summin 0) (summax 0)
          transpos)
-    (repeat (floor 1-length 2)
-      (incf summin (nextl ints)))
+    (dotimes (i (floor 1-length 2))
+      (incf summin (pop ints)))
     (if (evenp 1-length)
-      (nextl ints transpos)
+      (setq transpos (pop ints))
       (progn
-        (incf summin (nextl ints transpos))
+        (incf summin (setq transpos (pop ints)))
         (setq transpos (/ (+ transpos (car ints)) 2))))
-    (while ints (incf summax (nextl ints)))
+    (loop while ints do (incf summax (pop ints)))
     (values (- summax summin) transpos)))
 
 (defun sa-best-transp (ch1 ch2) 
