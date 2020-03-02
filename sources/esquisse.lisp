@@ -629,7 +629,7 @@ a one-element list"
 ; ==================== ring mod  ===========================
 
 (defun ring/freq (freqs1 freqs2 )
-"Rend une liste de listes de frquences contenant la modulation en anneau 
+"Rend une liste de listes de fréquences contenant la modulation en anneau 
 de chaque frequence de la liste <freqs1> par la liste <freqs2>"
   (let* (ll (freqs1 (list! freqs1)) (freqs2 (list! freqs2))
          (x (one-elem freqs1)))
@@ -805,7 +805,7 @@ de chaque frequence de la liste <freqs1> par la liste <freqs2>"
 ;;; (setf *tolerance* 1.01 )    un pour cent d'erreur
 
 ;;; -------------------------------------------------------------------------
-;;; Dfinition des classes 
+;;; Définition des classes 
 ;;; -------------------------------------------------------------------------
 
 (defclass spectre ( )
