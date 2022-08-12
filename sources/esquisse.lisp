@@ -296,9 +296,9 @@ included ('inclu') or excluded ('exclu') from the output list."
 
 (defmethod! fdistor ((chord list) (minout number) (maxout number) (unit symbol)
                      &optional minin  maxin)
-   :initvals '((6000 5700 7000) midic nil nil)
+   :initvals '((4800 5500 6400) 3600 7100 'midic nil nil)
    :indoc '("pitches" "minout" "maxout" "Unit" "minin" "maxin")
-   :menuins '((3 (("Midics" midic) ("Freqs" freq)))  )
+   :menuins '((3 (("Midics" 'midic) ("Freqs" 'freq)))  )
    :icon 242 
    :doc  
    "Distorts the frequencies of <chord> so that the lowest note is changed to
