@@ -141,7 +141,7 @@ chord-seq object by selecting 'chordseq' in the menu <type>"
 (defmethod! m-vir-fun ((chord list) (approx integer)  (thresh number)  (unit symbol))
    :initvals '((6000 6400 6700) 50 1200 midic)
    :indoc '("Chord" "Approx" "MinFund" "Unit")
-   :menuins '((3 (("Midics" midic) ("Freqs" freq))))
+   :menuins '((3 (("Midics" 'midic) ("Freqs" 'freq))))
    :icon 242 
    :doc  
    "Computes a series of possible virtual fundamentals from <chord> (a list of pitches) and <approx> (in midicents).
@@ -173,7 +173,7 @@ If the menu <unit> is 'freq' then <chord> and <thresh> must be given in Hz, othe
 (defmethod! ring-mod ((ch1 number) (ch2 number) (unit symbol) (type symbol))
    :initvals '(6000 6200  midic chord)
    :indoc '("Chord" "Chord" "Unit" "Mode")
-   :menuins '((2 (("Midics" midic) ("Freqs" freq))) (3 (("Chord" chord) ("ChordSeq" chordseq))) )
+   :menuins '((2 (("Midics" 'midic) ("Freqs" 'freq))) (3 (("Chord" 'chord) ("ChordSeq" 'chordseq))) )
    :icon 242 
    :doc  
    "Simulates the ring modulation of each note of <ch1> by all the notes of 
@@ -229,7 +229,7 @@ The output is always list of midics or list of list of midics.
 (defmethod! fshift ((pitch number) (dfreq number) (unit symbol) (type symbol)) 
   :initvals '(6000 100  midic chord)
   :indoc '("pitch" "dfreq" "Unit" "Mode")
-  :menuins '((2 (("Midics" midic) ("Freqs" freq))) (3 (("Chord" chord) ("ChordSeq" chordseq))) )
+  :menuins '((2 (("Midics" 'midic) ("Freqs" 'freq))) (3 (("Chord" 'chord) ("ChordSeq" 'chordseq))) )
   :icon 242 
   :doc  
   "Shifts the frequency of each note of <chord> by a frequency <dfreq> 
@@ -348,7 +348,7 @@ calculations and output are all in hertz.
 (defmethod! harm-dist ((chord list) (fund number) (unit symbol))
    :initvals '((6000) 2400 midic)
    :indoc '("pitches""fundamental" "Unit" )
-   :menuins '((2 (("Midics" midic) ("Freqs" freq)))  )
+   :menuins '((2 (("Midics" 'midic) ("Freqs" 'freq)))  )
    :numouts 2
    :icon 242 
    :doc     
@@ -395,7 +395,7 @@ There are 2 outputs : the ratios and the corresponding partial numbers"
 
    :initvals '((6000) 50 midic)
    :indoc '("pitches""approx" "unit" )
-   :menuins '((2 (("Midics" midic) ("Freqs" freq)))  )
+   :menuins '((2 (("Midics" 'midic) ("Freqs" 'freq)))  )
    :icon 242 
    :doc     
 
@@ -430,7 +430,7 @@ result returned in midicents, ('midic'), or in hertz ('freq'). The argument
 (defmethod! best-freq ((chord list) (unit symbol))
   :initvals '((6000) midic)
   :indoc '("pitches" "unit" )
-  :menuins '((1 (("Midics" midic) ("Freqs" freq))))
+  :menuins '((1 (("Midics" 'midic) ("Freqs" 'freq))))
   :icon 242 
   :doc     
   
@@ -461,7 +461,7 @@ calculations and output are all in hertz."
 (defmethod! best-transp ((ch1 list) (ch2 list) (fct symbol))
   :initvals '((6000) (6000) sum)
   :indoc '("chord" "chord" "fct")
-  :menuins '((2 (("Sum" sum) ("Max" max))))
+  :menuins '((2 (("Sum" 'sum) ("Max" 'max))))
   :icon 242 
   :doc     
  
