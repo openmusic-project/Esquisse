@@ -16,7 +16,7 @@
 (in-package :om)
 
  
-; HARM-SERIES NTH-HARM FREQ-MOD RING-MOD M-VIR-FUN FSHIFT FDISTOR HARM-DIST VIRT-FUND BEST-FREQ BEST-TRANSP
+; HARM-SERIES NTH-HARM FREQ-MOD RING-MOD M-VIR-FUN FSHIFT FDISTOR HARM-DIST VIRT-FUND BEST-FREQ BEST-TRANSP [ BEST-INV ALL-INVERSIONS - phraposo-may/2023 ] 
 
 (defmethod! harm-series ((fund t) (numer integer) 
                          (denom integer) (begin integer)
@@ -489,7 +489,72 @@ context."
 (defmethod! best-transp ((ch1 chord) (ch2 chord) (fct symbol))
    (best-transp (lmidic ch1) (lmidic ch2) fct))
 
+(defmethod! best-inv ((regch list) (intch list) &optional (fct 1)) 
+:initvals '( (4600 5600 6000) (6000 6300 6500) 1)
+:indoc '("regch" "intch" "sum-or-max") 
+:icon 242
+:menuins '( (2 (("sum" 1) ("max" 2))))
+:doc "Extracts the intervallic content of the chord <intch> (in midis) 
+and through a global transposition of the chord followed by octave 
+transpositions of individual notes produces a chord with the intervals 
+of <intch> whose notes are as close as possible to those of the chord 
+<regch> (also in midis). This in essence distorts the chord <regch> 
+by the smallest amount possible for it to take on the intervallic 
+structure of <intch>.
 
+<regch> must be a single chord.
+
+<intch> may be a list of chords (also in midis) from which the one 
+that distorts least <regch> is used for the operation. The output will 
+still be a single chord.
+
+The optional argument <fct> allows the choice between two different 
+algorithms for calculating this function,'sum' and 'max'. The default
+is sum because 'max' can produce quarter tones from semi-tone input. For
+best results one should experiment with both and choose according to 
+context."
+(setq regch (om/ regch 100))
+(setq intch (om/ intch 100))
+(let ((results  
+  (if (atom (car intch)) (closest-inv regch intch fct) 
+      (best-closest-inv regch intch fct))))
+(om-round (om* 100 results) 0 1)))
+
+(defun inversion1 (chord direction)
+ (setq chord (sort-list chord :test direction))
+ (let ((oper (if (equal direction '>) '- '+))  (note (pop chord)))
+   (while (funcall direction note (last-elem chord))
+              (setq note (funcall oper note 12)))
+  (append chord (list note))))
+
+(defun all-inv (chord direction format)
+ (if (= direction 1) (setq direction '>) (setq direction '<))	
+ (let ((res (list chord)))
+   (dotimes (n (1- (length chord)))
+     (setq chord (inversion1 chord direction))
+     (push chord res)) 
+   (if (= format 2) (cdr (nreverse res)) (nreverse res))))
+
+(defmethod! all-inversions ((chord list) (direction number) &optional (format 1))
+:initvals '( (6000 6400 6700) 1 1)
+:indoc '("midics" "direction" "inclus-or-excus") 
+:icon 242
+:menuins '( (1 ((">" 1) ("<" 2))) (2 (("inclus" 1) ("exclus" 2))))
+:doc "Outputs a structured list of all possible inversions of <chord> 
+(in midis). Inversion here means the moving of the highest note down 
+by octaves so as to make it the new bass note (when direction is '>'), or 
+moving the lowest note up by octaves to make it the highest (when 
+direction is '<'). The output is a list of chords on which this operation 
+has been performed to each successive chord until all notes of <chord> 
+have served as the base note.
+
+The optional argument <format> allows the choice of whether the original
+<chord> will be included, 'inclu' or excluded, 'exclu' from the output
+list.
+
+Warning: <chord> can take only a single chord."
+(setq chord (om/ chord 100)) 
+(om* 100 (all-inv chord direction format)))
 
 
 
@@ -1062,7 +1127,42 @@ de chaque frequence de la liste <freqs1> par la liste <freqs2>"
 ;===================== intervalles ==========================
 ;=============================================================
 
+;;; SORT-MOD-VERSION-FOR-MIDICS
 
+(defmethod! sort-mod((chord list))
+:initvals '( (6000 6100) )
+:indoc '("chord") 
+:icon 242
+:doc "Returns a sorted list of lists in which each note of the chord <chord> 
+(in midis) is converted into a list containing the interval in 
+midics of that note from the 'c' below it, followed by the midics 
+value of that 'c.' A list of chords also may be entered for <chord> the 
+resulting list will, however, have a higher level of structure and may 
+not be acceptable as entry for some other boxes."
+(less-deep-mapcar 'sort-mod1200 chord))
+
+(defun sort-mod1200 (ch)
+  (sort (mapcar #'(lambda (m) (let ((pc (mod m 1200))) (list pc (- m pc)))) (list! ch))
+   #'< :key #'car))
+   
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   
+(defmethod! sort-mod-12((chord list))
+:initvals '( (60 61) )
+:indoc '("chord") 
+:icon 242
+:doc "Returns a sorted list of lists in which each note of the chord <chord> 
+(in midis) is converted into a list containing the interval in 
+midis of that note from the 'c' below it, followed by the midis 
+value of that 'c.' A list of chords also may be entered for <chord> the 
+resulting list will, however, have a higher level of structure and may 
+not be acceptable as entry for some other boxes."
+(less-deep-mapcar 'sort-mod12 chord))
+
+(defun sort-mod12 (ch)
+ (sort (mapcar #'(lambda (m) (let ((pc (mod m 12))) (list pc (- m pc)))) (list! ch))
+  #'< :key #'car))
+   
 ;; ---- max-abs-idt ----
 
 (defun max-abs-idt (ch1 ch2)
@@ -1086,6 +1186,18 @@ of <ch2> and returns this transposition."
   (multiple-value-bind (dist ch) (max-abs-idt ch1 ch2)
     (declare (ignore dist))
     ch))
+
+(defmethod! ma-min-interv ((ch1 list) (ch2 list))
+:initvals '( (60 61) (60 610) )
+:indoc '("ch1" "ch2") 
+:icon 242
+:doc "Uses as intervalic distance the maximum of the absolute intervals (in cents)
+between the corresponding notes of the two chords <ch1> and <ch2>.
+Returns the minimum intervalic distance between <ch1> and the best transposition
+of <ch2>."
+(multiple-value-bind (dist ch) (max-abs-idt ch1 ch2)
+(declare (ignore ch))
+dist))
 
 ;; ---- sum-abs-idt ----
 
@@ -1124,4 +1236,105 @@ of <ch2> and returns this transposition."
   (multiple-value-bind (dist ch) (sum-abs-idt ch1 ch2)
     (declare (ignore dist))
     ch))
+	
+(defmethod! sa-min-interv ((ch1 list) (ch2 list)) 
+:initvals '( (60 61) (60 61) )
+:indoc '("ch1" "ch2") 
+:icon 242
+:doc "Uses as intervalic distance the arevage of the absolute intervals (in cents)
+between the corresponding notes of the two chords <ch1> and <ch2>.
+Returns the minimum intervalic distance between <ch1> and the best transposition
+of <ch2>."
+  (multiple-value-bind (dist ch) (sum-abs-idt ch1 ch2)
+    (declare (ignore ch))
+    dist))
+
+(defvar *default-intervalic-distance* 'max-abs-idt
+  "Contains the intervalic distance function (which defaults to 'max-abs-idt) used by
+the function closest-renv.
+This function should return 2 values: the distance and the best transposition.")
+
+;-----------------------------------------------------------------------------------
+
+(defmethod! closest-inv ((regch list) (intch t) &optional (fct 1)) 
+:initvals '( (60 61) 65 1)
+:indoc '("regch" "intch" "fct") 
+:icon 242
+:doc "Transpose globaly the intervallic chord <intch> and individually each of its notes
+ by octaves to produce a chord where each note is as close as possible to the
+ chord <regch>.
+ i.e distorts <regch> as little as possible to take the intervallic structure of <intch>."
+ 
+(multiple-value-bind (dist result) 
+               (closest-renv regch intch 
+                     (if (= fct 2) #'max-abs-idt #'sum-abs-idt ))
+ (declare (ignore dist))
+ (om-round result 1))); 100??
+ 
+(defmethod! best-closest-inv ((regch list) (intchs list) &optional (fct 1))
+:initvals '( (60 61) '((6400)) 1)
+:indoc '("regch" "intch" "fct") 
+:icon 242
+:doc"Like \"closest-renv\" but chooses the best intervallic-chord among <intchs>,
+comparing the distorsions of <regch>."
+(multiple-value-bind (dist chord) 
+           (best-closest-renv regch intchs 
+                       (if (= fct 2) #'max-abs-idt #'sum-abs-idt ))
+ (declare (ignore dist))
+ (om-round chord 1))); 100??
+	 
+;;approx:Changer???
+(defmethod! closest-renv ((regch list) (intch t)
+                   &optional (int-dist 'sum-abs-idt)) ;;??
+:initvals '( (60 61) 65 1 'sum-abs-idt)
+:indoc '("regch" "intch" "fct" " 'sum-abs-idt") 
+:icon 242
+:doc "Transpose globaly the intervallic chord <intch> and individually each of its notes
+by octaves to produce a chord where each note is as close as possible to the
+chord <regch>.
+i.e distorts <regch> as little as possible to take the intervallic structure of <intch>."
+(let* ((regch (list! regch))
+      (intch (list! intch))
+      (length (length intch))
+      (regch-sort-mod (sort-mod-12 regch))
+      (regch-mod (mapcar #'car regch-sort-mod))
+      (regch-transp (mapcar #'second regch-sort-mod))
+      (intch-mod (sort (mapcar #'(lambda (m) (mod m 12)) intch) #'<))
+      (dist-min most-positive-fixnum)
+      best-renvers best-transpos)
+ (unless (= (length regch) length)
+   (error "The two chords ~S and ~S should have the same length." regch intch))
+   (for (renvers 0 1 (1- length))
+   (multiple-value-bind (dist transpos) (funcall int-dist regch-mod intch-mod)
+     (when (< dist dist-min)
+       (setq dist-min dist best-renvers renvers best-transpos transpos)))
+   (setf (car intch-mod) (+ 12 (car intch-mod)))
+   (setq intch-mod (permut-circn intch-mod)))
+ (repeat best-renvers ; could be faster
+   (setf (car intch-mod) (+ 12 (car intch-mod)))
+   (setq intch-mod (permut-circn intch-mod)))
+ (values dist-min
+         (mapcar #'(lambda (intmidi regtransp)
+                     (+ intmidi best-transpos regtransp -12))
+                 intch-mod regch-transp))))
+				 
+(defmethod! best-closest-renv ((regch list) (intchs list)
+                   &optional (int-dist 'sum-abs-idt)) ;??
+:initvals '( (60 61) '((6400)) 1 'sum-abs-idt)
+:indoc '("regch" "intch" "fct" " 'sum-abs-idt") 
+:icon 242
+:doc "Like \"closest-renv\" but chooses the best intervallic-chord among <intchs>,
+comparing the distorsions of <regch>."
+(let ((best-dist-min most-positive-fixnum) best-ch (regch (list! regch)))
+ (mapc
+  #'(lambda (intch)
+      (multiple-value-bind (dist-min ch) (closest-renv regch intch int-dist)
+        (when (< dist-min best-dist-min)
+          (setq best-dist-min dist-min best-ch ch))))
+  intchs)
+ (values best-dist-min best-ch)))
+ 
+ ;----------------------------
+
+
 

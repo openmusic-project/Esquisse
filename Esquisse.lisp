@@ -17,7 +17,7 @@
 (compile&load (om::om-relative-path '("sources") "esquisse"))
 
 (om::fill-library 
-	'(("Intervals" nil nil (BEST-TRANSP) nil)
+	'(("Intervals" nil nil (BEST-TRANSP BEST-INV ALL-INVERSIONS SORT-MOD) nil)
       ("Spectral Harmony"
           (("harm-series" nil nil (HARM-SERIES NTH-HARM) nil)
            ("modulations" nil nil (FREQ-MOD RING-MOD) nil)
@@ -27,4 +27,4 @@
        ("Utilities" nil nil nil nil)
        ("midi" nil nil nil nil)))
 
-(om::set-lib-release 1.1)
+(om::set-lib-release 1.3)
